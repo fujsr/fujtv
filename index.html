@@ -9,18 +9,12 @@
 body {background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color:white; height:100vh; display:flex; flex-direction:column;}
 .header {text-align:center;padding:20px;font-size:2rem;font-weight:bold;}
 .tv-toggle, .sound-toggle {
-    position: fixed; top: 20px; z-index: 100; width:50px; height:50px; border-radius:8px; cursor:pointer;
+    position: fixed; top:20px; z-index:100; width:50px; height:50px; border-radius:8px; cursor:pointer;
     display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(0,0,0,0.5);
-    background:#00c6ff; border:none;
+    background:#00c6ff; border:none; font-size:24px;
 }
 .tv-toggle {right:80px;}
 .sound-toggle {right:20px;}
-.tv-toggle::before, .sound-toggle::before {
-    content:''; display:block; width:24px; height:18px; border:3px solid black; border-radius:2px; position:relative;
-}
-.tv-toggle::after, .sound-toggle::after {
-    content:''; position:absolute; bottom:6px; left:50%; transform:translateX(-50%); width:8px; height:4px; background:black; border-radius:1px;
-}
 .container {flex:1; display:flex; padding:10px;}
 .player {flex:1; border-radius:12px; overflow:hidden; box-shadow:0 0 15px rgba(0,0,0,0.5);}
 #player {width:100%; height:100%;}
@@ -30,8 +24,9 @@ body {background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color:whit
 <body>
 
 <div class="header">Welcome to RAK Ceramics Fujairah Branch</div>
-<button class="tv-toggle" onclick="toggleFullscreen()"></button>
-<button class="sound-toggle" onclick="toggleSound()"></button>
+
+<button class="tv-toggle" onclick="toggleFullscreen()" title="Toggle Fullscreen">🖥️</button>
+<button class="sound-toggle" onclick="toggleSound()" title="Click to unmute/mute">🔇</button>
 
 <div class="container">
     <div class="player" id="player"></div>
@@ -42,6 +37,8 @@ body {background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color:whit
 <script>
 let player;
 let isMuted = true;
+
+// RAK Ceramics channel uploads playlist ID
 const uploadsPlaylist = "UUvDakUnoH4q5pQpDNDDENUQ"; // 'UU'+ChannelID
 
 function onYouTubeIframeAPIReady() {
@@ -83,14 +80,17 @@ function toggleFullscreen(){
 }
 
 function toggleSound(){
+    const btn = document.querySelector('.sound-toggle');
     if(isMuted){
         player.unMute();
         isMuted = false;
-        document.querySelector('.sound-toggle').style.background = '#00ff7f';
-    }else{
+        btn.style.background = '#00ff7f';
+        btn.textContent = '🔊'; // sound on
+    } else {
         player.mute();
         isMuted = true;
-        document.querySelector('.sound-toggle').style.background = '#00c6ff';
+        btn.style.background = '#00c6ff';
+        btn.textContent = '🔇'; // sound off
     }
 }
 </script>
