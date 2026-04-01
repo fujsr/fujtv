@@ -27,15 +27,15 @@ button {padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; b
         <div id="player"></div>
     </div>
 </div>
-<div class="footer">© Hesper 2026</div>
+<div class="footer">© Hesper</div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
 let player;
 let currentPlaylist = 0;
 const playlists = [
-    "PLZ_eIeYi0CbO75qkw_AYQJYeHDHmrsHJe",
-    "PLZ_eIeYi0CbO9lURMEbKO1uTUGVnf5fju"
+    "PLZ_eIeYi0CbO75qkw_AYQJYeHDHmrsHJe", // Playlist 1
+    "PLZ_eIeYi0CbO9lURMEbKO1uTUGVnf5fju"  // Playlist 2
 ];
 
 function onYouTubeIframeAPIReady() {
@@ -43,11 +43,14 @@ function onYouTubeIframeAPIReady() {
         height: '100%',
         width: '100%',
         playerVars: {
-            'autoplay': 1,
-            'mute': 1,        // Ensures autoplay is permitted by the browser
-            'controls': 0,
-            'modestbranding': 1,
-            'rel': 0
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            modestbranding: 1,
+            rel: 0,
+            listType: 'playlist',
+            list: playlists[currentPlaylist],
+            index: 0
         },
         events: {
             'onReady': onPlayerReady,
@@ -58,36 +61,25 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(event) {
-    // Muting before playing guarantees the browser allows the autoplay
-    event.target.mute(); 
-    
-    // Loading the playlist here prevents player initialization errors
-    event.target.loadPlaylist({
-        listType: 'playlist',
-        list: playlists[currentPlaylist],
-        index: 0
-    });
+    event.target.playVideo();
 }
 
 function onPlayerStateChange(event) {
-    // Check if the playlist has ended
+    // When playlist ends, switch to next playlist
     if (event.data === YT.PlayerState.ENDED) {
         currentPlaylist = (currentPlaylist + 1) % playlists.length;
         player.loadPlaylist({
-            listType: 'playlist', 
-            list: playlists[currentPlaylist], 
+            list: playlists[currentPlaylist],
+            listType: 'playlist',
+            autoplay: 1,
             index: 0
         });
     }
 }
 
 function onPlayerError(event) {
-    console.warn('Video blocked or error, skipping. Error code:', event.data);
-    
-    // Error 150/101 usually means the video owner doesn't allow embedding
-    if (event.data === 150 || event.data === 101) {
-        player.nextVideo();
-    }
+    console.warn('Video blocked or error, skipping:', event.data);
+    player.nextVideo(); // Skip restricted video
 }
 
 function toggleFullscreen() {
