@@ -8,8 +8,7 @@
 * {margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif;}
 body {background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; height: 100vh; display: flex; flex-direction: column;}
 .header {text-align: center; padding: 20px; font-size: 2rem; font-weight: bold;}
-.controls {text-align: center; padding: 10px;}
-button {padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; background: #00c6ff; color: black; font-weight: bold;}
+.tv-toggle {position: fixed; top: 20px; right: 20px; z-index: 100; background: #00c6ff; color: black; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold;}
 .container {flex: 1; display: flex; padding: 10px;}
 .player {flex: 1; border-radius: 12px; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.5);}
 #player {width: 100%; height: 100%;}
@@ -19,9 +18,7 @@ button {padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; b
 <body>
 
 <div class="header">Welcome to RAK Ceramics Fujairah Branch</div>
-<div class="controls">
-    <button onclick="toggleFullscreen()">Fullscreen</button>
-</div>
+<button class="tv-toggle" onclick="toggleFullscreen()">TV Mode</button>
 <div class="container">
     <div class="player">
         <div id="player"></div>
@@ -32,54 +29,45 @@ button {padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; b
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
 let player;
-let currentPlaylist = 0;
-const playlists = [
-    "PLZ_eIeYi0CbO75qkw_AYQJYeHDHmrsHJe", // Playlist 1
-    "PLZ_eIeYi0CbO9lURMEbKO1uTUGVnf5fju"  // Playlist 2
+let currentVideo = 0;
+
+// List of individual video IDs from RAK Ceramics channel (replace/add any new videos)
+const videos = [
+    "9DflRTvoXh8",
+    "uCnJDtD0_WA"
 ];
 
 function onYouTubeIframeAPIReady() {
     player = new YT.Player('player', {
         height: '100%',
         width: '100%',
+        videoId: videos[currentVideo],
         playerVars: {
             autoplay: 1,
             mute: 1,
             controls: 0,
             modestbranding: 1,
-            rel: 0,
-            listType: 'playlist',
-            list: playlists[currentPlaylist],
-            index: 0
+            rel: 0
         },
         events: {
-            'onReady': onPlayerReady,
+            'onReady': (event) => event.target.playVideo(),
             'onStateChange': onPlayerStateChange,
             'onError': onPlayerError
         }
     });
 }
 
-function onPlayerReady(event) {
-    event.target.playVideo();
-}
-
 function onPlayerStateChange(event) {
-    // When playlist ends, switch to next playlist
     if (event.data === YT.PlayerState.ENDED) {
-        currentPlaylist = (currentPlaylist + 1) % playlists.length;
-        player.loadPlaylist({
-            list: playlists[currentPlaylist],
-            listType: 'playlist',
-            autoplay: 1,
-            index: 0
-        });
+        currentVideo = (currentVideo + 1) % videos.length;
+        player.loadVideoById(videos[currentVideo]);
     }
 }
 
 function onPlayerError(event) {
     console.warn('Video blocked or error, skipping:', event.data);
-    player.nextVideo(); // Skip restricted video
+    currentVideo = (currentVideo + 1) % videos.length;
+    player.loadVideoById(videos[currentVideo]);
 }
 
 function toggleFullscreen() {
