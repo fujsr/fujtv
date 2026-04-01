@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAK Ceramics Fujairah</title>
+<style>
+* {margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif;}
+body {background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; height: 100vh; display: flex; flex-direction: column;}
+.header {text-align: center; padding: 20px; font-size: 2rem; font-weight: bold;}
+.controls {text-align: center; padding: 10px;}
+button {padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; background: #00c6ff; color: black; font-weight: bold;}
+.container {flex: 1; display: flex; padding: 10px;}
+.player {flex: 1; border-radius: 12px; overflow: hidden; box-shadow: 0 0 15px rgba(0,0,0,0.5);}
+#player {width: 100%; height: 100%;}
+.footer {text-align: center; padding: 10px; font-size: 0.9rem; opacity: 0.7;}
+</style>
+</head>
+<body>
+
+<div class="header">Welcome to RAK Ceramics Fujairah Branch</div>
+<div class="controls">
+    <button onclick="toggleFullscreen()">Fullscreen</button>
+</div>
+<div class="container">
+    <div class="player">
+        <div id="player"></div>
+    </div>
+</div>
+<div class="footer">© Hesper</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+let player;
+let currentPlaylist = 0;
+const playlists = [
+    "PLZ_eIeYi0CbO75qkw_AYQJYeHDHmrsHJe",
+    "PLZ_eIeYi0CbO9lURMEbKO1uTUGVnf5fju"
+];
+
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+            'autoplay': 1,
+            'mute': 1,        // Ensures autoplay is permitted by the browser
+            'controls': 0,
+            'modestbranding': 1,
+            'rel': 0
+        },
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange,
+            'onError': onPlayerError
+        }
+    });
+}
+
+function onPlayerReady(event) {
+    // Muting before playing guarantees the browser allows the autoplay
+    event.target.mute(); 
+    
+    // Loading the playlist here prevents player initialization errors
+    event.target.loadPlaylist({
+        listType: 'playlist',
+        list: playlists[currentPlaylist],
+        index: 0
+    });
+}
+
+function onPlayerStateChange(event) {
+    // Check if the playlist has ended
+    if (event.data === YT.PlayerState.ENDED) {
+        currentPlaylist = (currentPlaylist + 1) % playlists.length;
+        player.loadPlaylist({
+            listType: 'playlist', 
+            list: playlists[currentPlaylist], 
+            index: 0
+        });
+    }
+}
+
+function onPlayerError(event) {
+    console.warn('Video blocked or error, skipping. Error code:', event.data);
+    
+    // Error 150/101 usually means the video owner doesn't allow embedding
+    if (event.data === 150 || event.data === 101) {
+        player.nextVideo();
+    }
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
+</script>
+
+</body>
+</html>
